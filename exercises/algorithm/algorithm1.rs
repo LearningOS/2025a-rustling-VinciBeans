@@ -2,14 +2,14 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
 
 #[derive(Debug)]
-struct Node<T> {
+struct Node<T:> {
     val: T,
     next: Option<NonNull<Node<T>>>,
 }
@@ -69,14 +69,57 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a:LinkedList<T>,mut list_b:LinkedList<T>) -> Self
+    where T: Ord
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut ordered_list = LinkedList::new();
+        ordered_list.length = list_a.length + list_b.length;
+
+        let mut ptr_a = list_a.start;
+        let mut ptr_b = list_b.start;
+
+        match [ptr_a, ptr_b] {
+            [None, None] => {},
+            [None, Some(_)] => {
+                ordered_list.start = list_b.start;
+                ordered_list.end = list_b.end;
+            },
+            [Some(_), None] => {
+                ordered_list.start = list_a.start;
+                ordered_list.end = list_a.end;
+            },
+            [Some(a), Some(b)] => {
+                let mut temp_list = LinkedList::new();
+
+                unsafe {
+                    if (*a.as_ptr()).val <= (*b.as_ptr()).val {
+                        ordered_list.start = list_a.start;
+                        ptr_a = (*a.as_ptr()).next;
+                        temp_list.start = ptr_a;
+                        temp_list.end = list_a.end;
+                        temp_list = LinkedList::<T>::merge(temp_list, list_b);
+                    } else {
+                        ordered_list.start = list_b.start;
+                        ptr_b = (*b.as_ptr()).next;
+                        temp_list.start = ptr_b;
+                        temp_list.end = list_b.end;
+                        temp_list = LinkedList::<T>::merge(list_a, temp_list);
+                    };
+
+                    match ordered_list.start {
+                        None => {},
+                        Some(ptr_o) => {
+                            (*ptr_o.as_ptr()).next = temp_list.start;
+                        }
+                    }
+                }
+
+                ordered_list.end = temp_list.end;
+            }
         }
+
+        ordered_list
 	}
 }
 
