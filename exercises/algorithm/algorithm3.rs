@@ -3,10 +3,21 @@
 	This problem requires you to implement a sorting algorithm
 	you can use bubble sorting, insertion sorting, heap sorting, etc.
 */
-// I AM NOT DONE
 
-fn sort<T>(array: &mut [T]){
+
+fn sort<T: std::cmp::Ord>(array: &mut [T]){
 	//TODO
+    if array.len() <= 1 {
+        return;
+    }
+
+    for _i in 0..array.len() {
+        for _j in 0..array.len()-_i-1 {
+            if array[_j] > array[_j+1] {
+                array.swap(_j, _j+1);
+            };
+        }
+    }
 }
 #[cfg(test)]
 mod tests {
